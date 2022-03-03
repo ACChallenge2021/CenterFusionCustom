@@ -299,8 +299,21 @@ class opts(object):
     self.parser.add_argument('--pillar_dims', type=str, default='2,0.5,0.5',
                              help='Radar pillar dimensions (h,w,l)')
     self.parser.add_argument('--show_velocity', action='store_true')
-    
-    
+
+    # provide data dir
+    self.parser.add_argument('--data_dir', default='data')
+
+    # Vitis Quantization
+    self.parser.add_argument('--quant_mode', choices=['float', 'calib', 'test'], default='float',
+                             help='quantization mode. 0: no quantization, evaluate float model, calib: quantize, test: evaluate quantized model')
+    self.parser.add_argument('--deploy',
+                             dest='deploy',
+                             action='store_true',
+                             help='export xmodel for deployment')
+    self.parser.add_argument('--fast_finetune',
+                             dest='fast_finetune',
+                             action='store_true',
+                             help='fast finetune model before calibration')
 
   def parse(self, args=''):
     if args == '':
@@ -364,7 +377,7 @@ class opts(object):
 
     # log dirs
     opt.root_dir = os.path.join(os.path.dirname(__file__), '..', '..')
-    opt.data_dir = os.path.join(opt.root_dir, 'data')
+    #opt.data_dir = os.path.join(opt.root_dir, 'data')
     opt.exp_dir = os.path.join(opt.root_dir, 'exp', opt.task)
     opt.save_dir = os.path.join(opt.exp_dir, opt.exp_id)
     opt.debug_dir = os.path.join(opt.save_dir, 'debug')

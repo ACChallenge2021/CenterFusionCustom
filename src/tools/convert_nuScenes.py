@@ -22,8 +22,8 @@ from utils.pointcloud import RadarPointCloudWithVelocity as RadarPointCloud
 from nuScenes_lib.utils_radar import map_pointcloud_to_image
 import time
 
-DATA_PATH = '../../data/nuscenes/'
-OUT_PATH = DATA_PATH + 'annotations'
+DATA_PATH = '/media/ronny/dataset/nuscenes/'
+OUT_PATH = DATA_PATH + 'annotationsFusion'
 SPLITS = {
           'mini_val': 'v1.0-mini',
           'mini_train': 'v1.0-mini',
@@ -89,8 +89,8 @@ def main():
   if not os.path.exists(OUT_PATH):
     os.mkdir(OUT_PATH)
   for split in SPLITS:
-    # data_path = DATA_PATH + '{}/'.format(SPLITS[split])
-    data_path = DATA_PATH
+    data_path = DATA_PATH + '{}/'.format(SPLITS[split])
+    #data_path = DATA_PATH
     nusc = NuScenes(
       version=SPLITS[split], dataroot=data_path, verbose=True)
     out_path = OUT_PATH + '{}.json'.format(split)

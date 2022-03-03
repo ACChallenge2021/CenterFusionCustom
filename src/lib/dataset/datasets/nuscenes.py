@@ -59,19 +59,23 @@ class nuScenes(GenericDataset):
     
     split_name = split_names[split]
     data_dir = os.path.join(opt.data_dir, 'nuscenes')
+    img_dir = os.path.join(
+      data_dir, 'v1.0-mini' if split_name  == 'mini' else 'v1.0-trainval')
+    
     print('Dataset version', opt.dataset_version)
     
-    anns_dir = 'annotations'
+    anns_dir = 'annotationsFusion'
     if opt.radar_sweeps > 1:
       anns_dir += '_{}sweeps'.format(opt.radar_sweeps)
 
     if opt.dataset_version == 'test':
       ann_path = os.path.join(data_dir, anns_dir, 'test.json')
+      img_dir = os.path.join(data_dir, 'v1.0-test')
     else:
       ann_path = os.path.join(data_dir, anns_dir, '{}.json').format(split_name)
 
     self.images = None
-    super(nuScenes, self).__init__(opt, split, ann_path, data_dir)
+    super(nuScenes, self).__init__(opt, split, ann_path, img_dir)
 
     self.alpha_in_degree = False    
     self.num_samples = len(self.images)
@@ -283,7 +287,7 @@ class nuScenes(GenericDataset):
         '{}/results_nuscenes_{}_{}.json '.format(save_dir, task, split) + \
         '--output_dir {} '.format(output_dir) + \
         '--eval_set {} '.format(split) + \
-        '--dataroot ../data/nuscenes/ ' + \
+        '--dataroot /media/ronny/dataset/nuscenes/ ' + \
         '--version {} '.format(version) + \
         '--plot_examples {} '.format(n_plots) + \
         '--render_curves {} '.format(render_curves))
@@ -293,11 +297,11 @@ class nuScenes(GenericDataset):
         'tools/nuscenes-devkit/python-sdk/nuscenes/eval/tracking/evaluate.py ' + \
         '{}/results_nuscenes_{}_{}.json '.format(save_dir, task, split) + \
         '--output_dir {} '.format(output_dir) + \
-        '--dataroot ../data/nuscenes/')
+        '--dataroot /media/ronny/dataset/nuscenes/')
       os.system('python ' + \
         'tools/nuscenes-devkit/python-sdk-alpha02/nuscenes/eval/tracking/evaluate.py ' + \
         '{}/results_nuscenes_{}_{}.json '.format(save_dir, task, split) + \
         '--output_dir {} '.format(output_dir) + \
-        '--dataroot ../data/nuscenes/')
+        '--dataroot /media/ronny/dataset/nuscenes/')
     
     return output_dir
