@@ -29,39 +29,19 @@ def do_trace(model, inp):
   model_trace = model_trace.eval()
   return model_trace
 
-
 def dict_to_tuple(out_dict):
-  return out_dict["hm"], out_dict["reg"], out_dict["wh"], out_dict["dep"], out_dict["rot"], out_dict["dim"], \
-         out_dict["amodel_offset"], out_dict["nuscenes_att"], out_dict["velocity"]
-
-def dict_to_tupleSecHead(out_dict):
   return out_dict["hm"], out_dict["reg"], out_dict["wh"], out_dict["dep"], out_dict["rot"], out_dict["dim"], \
          out_dict["amodel_offset"], out_dict["pc_hm"], out_dict["velocity"], \
          out_dict["nuscenes_att"], out_dict["dep_sec"], out_dict["rot_sec"]
 
-#def dict_to_tuple(out_dict):
-#  return out_dict["hm"], out_dict["reg"], out_dict["wh"], out_dict["dep"], out_dict["rot"], out_dict["dim"], \
-#         out_dict["amodel_offset"], out_dict["nuscenes_att"]
-
-class DLASegWrapper(torch.nn.Module):
-  def __init__(self, model):
-    super().__init__()
-    self.model = model
-
-  #def forward(self, x, pc_hm=None, pc_dep=None, calib=None):
-  def forward(self, x):
-    out = self.model(x, pc_hm=None, pc_dep=None, calib=None)
-    return dict_to_tuple(out[0])
-
-class DLASecHeeadWrapper(torch.nn.Module):
+class DLASecWrapper(torch.nn.Module):
   def __init__(self, model):
     super().__init__()
     self.model = model
 
   def forward(self, x, pc_dep=None, calib=None):
     out = self.model(x, pc_hm=None, pc_dep=pc_dep, calib=calib)
-    return dict_to_tupleSecHead(out[0])
-
+    return dict_to_tuple(out[0])
 
 
 def evaluate(detector, dataset, opt):
@@ -148,14 +128,7 @@ if __name__ == '__main__':
     calib = torch.randn([img_tensor['calib'].shape[1], img_tensor['calib'].shape[2]])
     calib = calib.to(device=opt.device, non_blocking=True)
 
-    #modelout = detector.model(input, pc_hm, pc_dep, calib)
-    #pytorch_nndct.NndctOption().nndct_parse_debug.value = 2
-    #module_model = torch.jit.trace(detector.model, (input, pc_hm, pc_dep, calib))
-    if opt.pointcloud:
-      modelWrap = DLASecHeeadWrapper(detector.model)
-    else:
-      modelWrap = DLASegWrapper(detector.model)
-
+    modelWrap = DLASecWrapper(detector.model)
     modelWrap.eval()
 
     #with torch.no_grad():
@@ -172,13 +145,8 @@ if __name__ == '__main__':
     #writer.add_graph(modelWrap, input_to_model=(input, pc_hm, pc_dep, calib), verbose=True)
     #writer.close()
     ##quantizer = torch_quantizer(quant_mode=opt.quant_mode, module=modelWrap, input_args=(input, pc_hm, pc_dep, calib), output_dir=opt.save_dir)
-    if opt.pointcloud:
-      quantizer = torch_quantizer(quant_mode=opt.quant_mode, module=modelWrap, input_args=(input, pc_dep, calib),
+    quantizer = torch_quantizer(quant_mode=opt.quant_mode, module=modelWrap, input_args=(input, pc_dep, calib),
                                 output_dir=opt.save_dir)
-    else:
-      quantizer = torch_quantizer(quant_mode=opt.quant_mode, module=modelWrap, input_args=(input),
-                                  output_dir=opt.save_dir)
-
     detector.setquantmodel(quantizer.quant_model)
 
   if opt.fast_finetune == True:

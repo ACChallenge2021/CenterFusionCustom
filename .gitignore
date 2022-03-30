@@ -1,6 +1,5 @@
 data/*
 !data/README.md
-models/*
 !models/README.md
 
 *.zip
@@ -23,7 +22,6 @@ debug/*
 !src/tools/eval_kitti_track/data
 exp
 exp/*
-*.json
 *.mat
 src/.vscode/*
 src/paths.py

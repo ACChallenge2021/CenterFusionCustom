@@ -1,0 +1,9 @@
+{
+    "lib": "libvart-dpu-runner.so",
+    "filename": "DLASecWrapper.xmodel",
+    "kernel": [
+        "subgraph_DLASecWrapper__DLASecWrapper_DLASeg_model__DLAUp_dla_up__IDAUp_ida_0__ConvTranspose2d_up_1__16166",
+        "subgraph_DLASecWrapper__DLASecWrapper_DLASeg_model__IDAUp_ida_up__ConvTranspose2d_up_1__16623"
+    ],
+    "target": "DPUCZDX8G_ISA0_B4096_MAX_BG2"
+}
