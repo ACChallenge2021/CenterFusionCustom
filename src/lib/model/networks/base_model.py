@@ -98,16 +98,19 @@ class BaseModel(nn.Module):
 
     def forward(self, x, pc_hm=None, pc_dep=None, calib=None):
       ## extract features from image
+      #if not self.opt.pointcloud:
       feats = self.img2feats(x)
+
       out = []
       
       for s in range(self.num_stacks):
         z = {}
 
         ## Run the first stage heads
+        #if not self.opt.pointcloud:
         for head in self.heads:
-          if head not in self.secondary_heads:
-            z[head] = self.__getattr__(head)(feats[s])
+            if head not in self.secondary_heads:
+                z[head] = self.__getattr__(head)(feats[s])
 
         if self.opt.pointcloud:
           ## get pointcloud heatmap
@@ -117,12 +120,14 @@ class BaseModel(nn.Module):
               if self.opt.normalize_depth:
                 pc_hm[self.opt.pc_feat_channels['pc_dep']] /= self.opt.max_pc_dist
             else:
-              pc_hm = generate_pc_hm(z, pc_dep, calib, self.opt)
+              #pc_hm = generate_pc_hm(z, pc_dep, calib, self.opt)
+              pc_hm = generate_pc_hm_custom(pc_dep, pc_dep, calib)
           ind = self.opt.pc_feat_channels['pc_dep']
           z['pc_hm'] = pc_hm[:,ind,:,:].unsqueeze(1)
 
           ## Run the second stage heads  
           sec_feats = [feats[s], pc_hm]
+          #sec_feats = [feats[s]]
           sec_feats = torch.cat(sec_feats, 1)
           for head in self.secondary_heads:
             z[head] = self.__getattr__(head)(sec_feats)
