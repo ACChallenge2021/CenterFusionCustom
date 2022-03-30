@@ -4,6 +4,7 @@ from __future__ import print_function
 from ..utils import _topk, _tranpose_and_gather_feat
 from utils.ddd_utils import get_pc_hm
 from utils.pointcloud import generate_pc_hm
+from pytorch_nndct.utils import register_custom_op
 
 import torch
 from torch import nn
@@ -14,6 +15,15 @@ def fill_fc_weights(layers):
             if m.bias is not None:
                 nn.init.constant_(m.bias, 0)
 
+@register_custom_op(op_type="generate_pc_hm_custom", attrs_list=[])
+def generate_pc_hm_custom(ctx, output : torch.Tensor, pc_dep : torch.Tensor, calib : torch.Tensor) -> torch.Tensor :
+    #def generate_pc_hm_custom(ctx, output, pc_dep, calib, opt) -> torch.Tensor:
+    pc_hm = torch.tensor((), dtype=torch.float32)
+    pc_hm = pc_hm.new_zeros(pc_dep.shape)
+    pc_hm = pc_hm.to(device=pc_dep.device, non_blocking=True)
+    #pc_hm = pc_dep.clone()
+    #pc_hm = generate_pc_hm(output, pc_dep, calib, opt)
+    return pc_hm
 
 class BaseModel(nn.Module):
     def __init__(self, heads, head_convs, num_stacks, last_channel, opt=None):
